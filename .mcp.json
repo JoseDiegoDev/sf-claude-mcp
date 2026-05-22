@@ -15,6 +15,10 @@
     "sf-api-context": {
       "type": "http",
       "url": "http://localhost:8766/api-context"
+    },
+    "sf-all": {
+      "type": "http",
+      "url": "http://localhost:8766/all"
     }
   }
 }

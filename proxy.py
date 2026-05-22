@@ -10,6 +10,7 @@ Rotas expostas:
   http://localhost:8766/mutations   → sobject-mutations
   http://localhost:8766/metadata    → metadata-experts
   http://localhost:8766/api-context → salesforce-api-context
+  http://localhost:8766/all         → sobject-all
 
 Uso:
     python proxy.py

@@ -15,11 +15,12 @@ Você  ──→  Claude Code  ──→  .mcp.json  ──→  localhost:8766 (
                                                       │
                                          Salesforce MCP API
                                      ┌────────────────────────────┐
-                                     │  /reads    → sobject-reads  │
-                                     │  /mutations → sobject-mut.  │
-                                     │  /metadata  → metadata-exp. │
-                                     │  /api-context → api-ctx    │
-                                     └────────────────────────────┘
+                                     │  /reads      → sobject-reads │
+                                     │  /mutations  → sobject-mut.  │
+                                     │  /metadata   → metadata-exp. │
+                                     │  /api-context → api-ctx      │
+                                     │  /all        → sobject-all   │
+                                     └──────────────────────────────┘
 ```
 
 O proxy faz o OAuth uma vez ao iniciar e injeta o Bearer token em todos os requests. O Claude Code enxerga apenas `localhost` — não precisa saber nada sobre autenticação.
@@ -63,7 +64,7 @@ O browser abre para login OAuth. Após autenticar, o proxy fica escutando em `lo
 ```bash
 claude
 ```
-O Claude Code lê o `.mcp.json` e conecta nos 4 MCP servers automaticamente. Você já pode perguntar sobre o Salesforce diretamente.
+O Claude Code lê o `.mcp.json` e conecta nos 5 MCP servers automaticamente. Você já pode perguntar sobre o Salesforce diretamente.
 
 ### Exemplos do que perguntar ao Claude
 
