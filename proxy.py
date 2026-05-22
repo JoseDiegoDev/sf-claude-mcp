@@ -38,6 +38,7 @@ _SERVER_MAP = {
     "/mutations": "sobject-mutations",
     "/metadata": "metadata-experts",
     "/api-context": "salesforce-api-context",
+    "/all": "sobject-all",
 }
 
 _access_token: str = ""
@@ -60,23 +61,34 @@ async def _proxy(request: Request) -> Response:
             status_code=404,
         )
 
-    headers = {k: v for k, v in request.headers.items() if k.lower() not in _EXCLUDED}
-    headers["Authorization"] = f"Bearer {_access_token}"
+    req_headers = {k: v for k, v in request.headers.items() if k.lower() not in _EXCLUDED}
+    req_headers["Authorization"] = f"Bearer {_access_token}"
+    req_headers["Accept"] = "application/json, text/event-stream"
     body = await request.body()
 
-    if "text/event-stream" in request.headers.get("accept", ""):
-        async def _stream():
-            async with httpx.AsyncClient(timeout=None) as client:
-                async with client.stream(request.method, url, headers=headers, content=body) as r:
-                    async for chunk in r.aiter_bytes():
-                        yield chunk
-        return StreamingResponse(_stream(), media_type="text/event-stream")
-
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        r = await client.request(request.method, url, headers=headers, content=body)
+    client = httpx.AsyncClient(timeout=None)
+    r = await client.send(
+        client.build_request(request.method, url, headers=req_headers, content=body),
+        stream=True,
+    )
 
     resp_headers = {k: v for k, v in r.headers.items() if k.lower() not in _EXCLUDED}
-    return Response(content=r.content, status_code=r.status_code, headers=resp_headers)
+    content_type = r.headers.get("content-type", "text/event-stream")
+
+    async def _stream():
+        try:
+            async for chunk in r.aiter_bytes():
+                yield chunk
+        finally:
+            await r.aclose()
+            await client.aclose()
+
+    return StreamingResponse(
+        _stream(),
+        status_code=r.status_code,
+        headers=resp_headers,
+        media_type=content_type,
+    )
 
 
 app = Starlette(routes=[
