@@ -1,0 +1,24 @@
+{
+  "servers": {
+    "sf-reads": {
+      "type": "http",
+      "url": "http://localhost:8766/reads"
+    },
+    "sf-mutations": {
+      "type": "http",
+      "url": "http://localhost:8766/mutations"
+    },
+    "sf-metadata": {
+      "type": "http",
+      "url": "http://localhost:8766/metadata"
+    },
+    "sf-api-context": {
+      "type": "http",
+      "url": "http://localhost:8766/api-context"
+    },
+    "sf-all": {
+      "type": "http",
+      "url": "http://localhost:8766/all"
+    }
+  }
+}

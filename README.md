@@ -1,29 +1,40 @@
-# sf-claude-mcp
+# sf-llm-mcp
 
-Proxy local que conecta o **Claude Code** diretamente ao **Salesforce** via MCP (Model Context Protocol).
+Proxy local que conecta **LLMs com suporte a MCP** diretamente ao **Salesforce** via Model Context Protocol.
 
-Você conversa com o Claude Code normalmente — ele é quem fala com o Salesforce por baixo dos panos, sem precisar de nenhum agente Python no meio.
+Você conversa normalmente com sua ferramenta de IA — ela fala com o Salesforce por baixo dos panos, sem precisar de nenhum agente Python no meio.
+
+| Ferramenta | Config | Status |
+|---|---|---|
+| Claude Code | `.mcp.json` | ✅ Suportado |
+| GitHub Copilot (VS Code) | `.vscode/mcp.json` | ✅ Suportado |
+| Cursor | `.cursor/mcp.json` | Em breve |
+| Codex CLI | — | Em breve |
 
 ---
 
 ## Como funciona
 
 ```
-Você  ──→  Claude Code  ──→  .mcp.json  ──→  localhost:8766 (proxy.py)
-                                                      │
-                                          OAuth 2.0 + PKCE (uma vez)
-                                                      │
-                                         Salesforce MCP API
-                                     ┌────────────────────────────┐
-                                     │  /reads      → sobject-reads │
-                                     │  /mutations  → sobject-mut.  │
-                                     │  /metadata   → metadata-exp. │
-                                     │  /api-context → api-ctx      │
-                                     │  /all        → sobject-all   │
-                                     └──────────────────────────────┘
+Você  ──→  LLM (Claude / Copilot / Codex)
+                    │
+            config MCP local
+                    │
+           localhost:8766 (proxy.py)
+                    │
+        OAuth 2.0 + PKCE (uma vez)
+                    │
+       Salesforce MCP API
+   ┌────────────────────────────────┐
+   │  /reads       → sobject-reads  │
+   │  /mutations   → sobject-mut.   │
+   │  /metadata    → metadata-exp.  │
+   │  /api-context → api-ctx        │
+   │  /all         → sobject-all    │
+   └────────────────────────────────┘
 ```
 
-O proxy faz o OAuth uma vez ao iniciar e injeta o Bearer token em todos os requests. O Claude Code enxerga apenas `localhost` — não precisa saber nada sobre autenticação.
+O proxy faz o OAuth uma vez ao iniciar e injeta o Bearer token em todos os requests. A LLM enxerga apenas `localhost` — não precisa saber nada sobre autenticação.
 
 ---
 
@@ -40,7 +51,7 @@ O proxy faz o OAuth uma vez ao iniciar e injeta o Bearer token em todos os reque
 ## Instalação
 
 ```bash
-cd sf-claude-mcp
+cd sf-llm-mcp
 python -m venv .venv
 .venv\Scripts\activate        # Windows
 # source .venv/bin/activate   # Linux/macOS
@@ -60,13 +71,18 @@ python proxy.py
 ```
 O browser abre para login OAuth. Após autenticar, o proxy fica escutando em `localhost:8766`.
 
-**Terminal 2 — abre o Claude Code nesta pasta:**
-```bash
-claude
-```
-O Claude Code lê o `.mcp.json` e conecta nos 5 MCP servers automaticamente. Você já pode perguntar sobre o Salesforce diretamente.
+**Terminal 2 — abre sua ferramenta de IA:**
 
-### Exemplos do que perguntar ao Claude
+```bash
+# Claude Code
+claude
+
+# GitHub Copilot — basta abrir o VS Code nesta pasta
+# O .vscode/mcp.json é lido automaticamente
+code .
+```
+
+### Exemplos do que perguntar
 
 ```
 Quais são as 5 Opportunities com maior valor?
@@ -90,10 +106,11 @@ Descreva os campos do objeto Opportunity
 ## Estrutura
 
 ```
-sf-claude-mcp/
-├── proxy.py        ← servidor HTTP local (roteador + injetor de token)
-├── auth.py         ← OAuth 2.0 + PKCE (RFC 7636), auto-contido
-├── .mcp.json       ← lido pelo Claude Code para descobrir os MCP servers
-├── .env.example    ← template de credenciais
+sf-llm-mcp/
+├── proxy.py           ← servidor HTTP local (roteador + injetor de token)
+├── auth.py            ← OAuth 2.0 + PKCE (RFC 7636), auto-contido
+├── .mcp.json          ← Claude Code
+├── .vscode/mcp.json   ← GitHub Copilot (VS Code)
+├── .env.example       ← template de credenciais
 └── requirements.txt
 ```
